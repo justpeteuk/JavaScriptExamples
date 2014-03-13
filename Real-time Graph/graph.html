@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<!-- 
+     Author: Edwin Torres
+	  email: CoachEd@gmail.com
+	  
+Description: A JavaScript program that uses the Flot library to create a 
+             real-time scrolling graph. The speed of the graph can be
+             changed by entering a new update time.
+
+             This example uses the Flot plotting API for jQuery
+			 Link: http://www.flotcharts.org/
+-->
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Flot</title>
+    <link href="js/examples.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.flot.js"></script>
+    <script type="text/javascript">
+
+	<!-- create the running chart -->
+    $(function() {
+        var data = [],
+        totalPoints = 300;
+
+		// get random data for the chart
+        function getRandomData() {
+            if (data.length > 0)
+                data = data.slice(1);
+
+            while (data.length < totalPoints) {
+                var prev = data.length > 0 ? data[data.length - 1] : 50,
+                y = prev + Math.random() * 10 -5;
+
+                if (y < 0) {
+                    y = 0;
+                } else if (y > 100) {
+                    y = 100;
+                }
+
+                data.push(y);
+            }
+
+            var res = [];
+            for (var i = 0; i < data.length; ++i) {
+                res.push([i, data[i]])
+            }
+            return res;
+        }
+
+        //set up the update interval
+        var updateInterval = 30;
+        $("#updateInterval").val(updateInterval).change(function () {
+            var v = $(this).val();
+            if (v && !isNaN(+v)) {
+                updateInterval = +v;
+                if (updateInterval < 1) {
+                    updateInterval = 1;
+                } else if (updateInterval > 2000) {
+                    updateInterval = 2000;
+                }
+                $(this).val("" + updateInterval);
+            }
+        });
+
+		//create the actual chart
+        var plot = $.plot("#placeholder", [ getRandomData() ], {
+            series: {
+            lines: { show: true, fill: true, fillColor: "rgba(237, 194, 64, 0.8)" },
+            shadowSize: 0    // Drawing is faster without shadows
+            },
+            yaxis: {
+                min: 0,
+                max: 100,
+				show: true
+            },
+            xaxis: {
+                show: false
+            }
+        });
+
+		//the update function that repeats
+        function update() {
+            plot.setData([getRandomData()]);
+            plot.draw();
+            setTimeout(update, updateInterval);
+        }
+
+        update();
+
+        // Display the Flot version at the bottom
+        $("#footer").prepend("Flot " + $.plot.version + " &ndash; ");
+    });
+
+    </script>
+</head>
+<body>
+
+<div id="header">
+<h2>Real-time updates</h2>
+</div>
+
+<div id="content">
+    <div class="demo-container">
+        <div id="placeholder" class="demo-placeholder"></div>
+    </div>
+
+    <p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
+</div>
+
+<div id="footer">
+</div>
+	
+</body>
+</html>
