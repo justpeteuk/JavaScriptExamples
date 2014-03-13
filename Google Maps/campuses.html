@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<!-- 
+Author: Edwin Torres 
+email:  CoachEd@gmail.com
+Description: 
+A JavaScript program that uses Google Maps.
+
+This program allows the user to select a Brookdale campus 
+and display it on the map. The user can click any location 
+on the map to retrieve the latitude and longitude coordinates.
+The user can also switch to satellite view and street view,
+just like Google Maps.
+			 
+This program uses the Google Maps JavaScript API:
+https://developers.google.com/maps/documentation/javascript/
+-->
+
+<html>
+<head>
+    <title>Brookdale Campuses</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+        html, body, #map-canvas {
+            margin: 0;
+            padding: 0;
+            height: 325px;
+            width: 500px;
+        }
+	    table {
+	        border: 0px;
+	    }
+    </style>
+	
+	<!-- JavaScript for the Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=false"></script>
+	
+    <script>
+    //global vars
+    var map;
+    var marker;
+    var defLat= 40.327919;
+    var defLon= -74.133403;
+
+	<!-- initialize the Google map -->
+    function initialize() {
+        var mapOptions = {
+            zoom: 14,
+            center: new google.maps.LatLng(defLat,defLon),
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+		
+        map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+		google.maps.event.addListener(map, "click", function(event) {
+		    var newll = new google.maps.LatLng(event.latLng.lat(), event.latLng.lng());
+		    marker.setPosition(newll);
+		    var newlat = event.latLng.lat();
+		    var newlon = event.latLng.lng();
+		    document.getElementById('lat').value = newlat.toFixed(6);
+		    document.getElementById('lon').value = newlon.toFixed(6);	
+		    uncheckAll();
+        });
+		
+        marker = new google.maps.Marker({
+            position: new google.maps.LatLng(defLat,defLon),
+            map: map,
+            draggable: false,
+            animation: google.maps.Animation.DROP
+        });
+    }
+	
+	<!-- call initialize when window loads -->
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+	<!-- move/center the map at lat , lon -->
+    function moveMap(lat,lon) {
+	    var newll = new google.maps.LatLng(lat,lon);
+	    map.setCenter(newll);
+	    marker.setPosition(newll);
+	    document.getElementById('lat').value = lat;
+	    document.getElementById('lon').value = lon;	
+    }
+
+	<!-- uncheck all the radio buttons -->
+    function uncheckAll() {
+	    for (var i=0;i<5;i++) { 
+		    document.getElementById('rd'+i).checked = false;
+	    }    
+    }
+
+	<!-- define lat lon based on which radio button is checked. then move to that location -->
+    function handler() {
+        var newLat, newLon;
+	    if (document.getElementById('rd0').checked) {
+		    newLat = 40.327919;
+		    newLon = -74.133403;	
+	    } else if (document.getElementById('rd1').checked) {
+		    newLat = 40.211947;
+		    newLon = -74.03469;
+	    } else if (document.getElementById('rd2').checked) {
+		    newLat = 40.304598;
+		    newLon = -73.987334;
+	    } else if (document.getElementById('rd3').checked) {
+		    newLat = 40.421129;
+		    newLon = -74.158229;
+	    } else if (document.getElementById('rd4').checked) {
+		    newLat = 40.183087;
+		    newLon = -74.063107;
+	    } 
+        moveMap(newLat,newLon);
+    }
+
+</script>
+
+</head>
+
+<body>
+<h1>&nbsp;&nbsp;Brookdale Campuses</h1>
+<table>
+    <tr>
+    <td colspan=6>
+        <div id="map-canvas"></div>
+    </td>
+    </tr>
+
+    <tr>
+    <td colspan=6>
+    </td>
+    </tr>
+
+    <tr>
+    <td>&nbsp;&nbsp;Lat:</td>
+    <td>&nbsp;&nbsp;<input type="text" id="lat" value="" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td>&nbsp;&nbsp;Lon:</td>
+    <td>&nbsp;&nbsp;<input type="text" id="lon" value="" readonly></td>
+    <td></td>
+    </tr>
+
+    <tr>
+    <td colspan=6>
+    <h3>Select a campus:</h3>
+    </td>
+    </tr>
+
+    <tr>
+    <td colspan=6>&nbsp;&nbsp;<input type="radio" name="loc" id="rd0" checked onclick="handler()">Lincroft</td>
+    </tr>
+	
+    <tr>
+    <td colspan=6>&nbsp;&nbsp;<input type="radio" name="loc" id="rd1" onclick="handler()">Eastern Monmouth HEC</td>
+    </tr>
+	
+    <tr>
+    <td colspan=6>&nbsp;&nbsp;<input type="radio" name="loc" id="rd2" onclick="handler()">Long Branch HEC</td>
+    </tr>
+	
+    <tr>
+    <td colspan=6>&nbsp;&nbsp;<input type="radio" name="loc" id="rd3" onclick="handler()">Northern Monmouth HEC</td>
+    </tr>
+	
+    <tr>
+    <td colspan=6>&nbsp;&nbsp;<input type="radio" name="loc" id="rd4" onclick="handler()">Wall HEC</td>
+    </tr>
+	
+</table>
+
+<!-- set defaults after elements are created -->
+<script>
+    document.getElementById('lat').value = defLat;
+    document.getElementById('lon').value = defLon;
+</script>
+
+
+</body>
+</html>
