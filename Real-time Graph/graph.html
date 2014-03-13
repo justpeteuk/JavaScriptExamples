@@ -2,14 +2,14 @@
 
 <!-- 
      Author: Edwin Torres
-	  email: CoachEd@gmail.com
-	  
+      email: CoachEd@gmail.com
+      
 Description: A JavaScript program that uses the Flot library to create a 
              real-time scrolling graph. The speed of the graph can be
              changed by entering a new update time.
 
              This example uses the Flot plotting API for jQuery
-			 Link: http://www.flotcharts.org/
+             Link: http://www.flotcharts.org/
 -->
 
 <html>
@@ -21,12 +21,12 @@ Description: A JavaScript program that uses the Flot library to create a
     <script type="text/javascript" src="js/jquery.flot.js"></script>
     <script type="text/javascript">
 
-	<!-- create the running chart -->
+    <!-- create the running chart -->
     $(function() {
         var data = [],
         totalPoints = 300;
 
-		// get random data for the chart
+        // get random data for the chart
         function getRandomData() {
             if (data.length > 0)
                 data = data.slice(1);
@@ -66,7 +66,7 @@ Description: A JavaScript program that uses the Flot library to create a
             }
         });
 
-		//create the actual chart
+        //create the actual chart
         var plot = $.plot("#placeholder", [ getRandomData() ], {
             series: {
             lines: { show: true, fill: true, fillColor: "rgba(237, 194, 64, 0.8)" },
@@ -75,14 +75,14 @@ Description: A JavaScript program that uses the Flot library to create a
             yaxis: {
                 min: 0,
                 max: 100,
-				show: true
+                show: true
             },
             xaxis: {
                 show: false
             }
         });
 
-		//the update function that repeats
+        //the update function that repeats
         function update() {
             plot.setData([getRandomData()]);
             plot.draw();
@@ -113,6 +113,6 @@ Description: A JavaScript program that uses the Flot library to create a
 
 <div id="footer">
 </div>
-	
+    
 </body>
 </html>
