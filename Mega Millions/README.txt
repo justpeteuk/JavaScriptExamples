@@ -1,0 +1,1 @@
+This JavaScript program selects Mega Millions lottery numbers.
