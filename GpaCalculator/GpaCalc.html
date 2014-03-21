@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<!-- 
+Description: A JavaScript program that calculates a student's GPA.
+     Author: Edwin Torres 
+-->
+
+<html>
+
+<head>    
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>GPA Calculator</title>
+    <link href="css/GpaCalculator.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h3>GPA Calculator</h3>
+<br>
+    <script>
+	
+		//this function dynamically adds a grade record to the table below
+        function addRecord() {
+            document.getElementById("msg").innerHTML = "";
+            document.getElementById("gpamsg").innerHTML = "";
+            
+            var className = document.getElementById("classname").value;
+            className = className.trim();
+            if (className.length == 0) {
+                document.getElementById("msg").innerHTML = "<b>Error!</b> Please enter a class name.";
+            } else {
+                //data is good! add the row
+                var table = document.getElementById("recordTable");
+                var row = table.insertRow(1);
+                var cell0 = row.insertCell(0);
+                var cell1 = row.insertCell(1);
+                var cell2 = row.insertCell(2);
+                var cell3 = row.insertCell(3);
+                var e;
+                
+                cell0.innerHTML = document.getElementById("classname").value;
+                e = document.getElementById("grade");
+                cell1.innerHTML = e.options[e.selectedIndex].value;
+                e = document.getElementById("credits");
+                cell2.innerHTML = e.options[e.selectedIndex].value;
+                cell3.innerHTML = "<button type='button' onclick='deleteRecord(this)'>Delete</button>";    
+            }
+        }    
+        
+		//this function deletes a record from the table below
+        function deleteRecord(obj) {
+            document.getElementById("gpamsg").innerHTML = "";
+            var row = obj.parentNode.parentNode;
+            var table = document.getElementById("recordTable");
+            table.deleteRow(row.rowIndex);
+        }
+    
+		//this function does the actual GPA calculating
+        function calculateGpa() {
+            document.getElementById("gpamsg").innerHTML = "";
+            var table = document.getElementById("recordTable");
+            if (table.rows.length == 1) {
+                //no records
+                document.getElementById("msg").innerHTML = "<b>Error!</b> Please enter data first.";
+            } else {
+				//we have records, so calculate the gpa
+                var table = document.getElementById("recordTable");
+                var className, grade, credits;
+                var totalPoints = 0;
+                var totalCredits = 0;
+                var gpa = 0;
+                for (var i = 1, row; row = table.rows[i]; i++) {
+                    className = row.cells[0].innerHTML;
+                    grade = eval(row.cells[1].innerHTML);
+                    credits = eval(row.cells[2].innerHTML);
+                    totalCredits += credits;
+                    totalPoints +=(grade * credits);
+                }                
+                gpa = totalPoints / totalCredits;
+                document.getElementById("gpamsg").innerHTML = "Your GPA is " + gpa.toFixed(1);
+            }
+
+        }
+        
+    </script>
+
+    
+    <!-- input table -->
+    <table class="noborder">
+    <tr class="noborder">
+    <td class="noborder">Class name</td>
+    <td class="noborder">Grade</td>
+    <td class="noborder">Credits</td>
+    <td class="noborder"><div id="gpamsg" class="gpamsg"></div></td>
+    </tr>
+    
+    <tr class="noborder">
+    <td class="noborder"><input type="text" id="classname" ></td>
+    <td class="noborder">
+        <select id="grade">
+        <script>
+            var num = 0.0;
+            var str = "";
+            var rounded;
+            var selected;
+            while (num < 9.9) 
+            {
+                num += 0.1;                
+                rounded = Math.round( num * 10 ) / 10;
+                str = rounded + "";
+                if (str.indexOf(".") == -1)
+                    str = str + ".0";
+                    
+                if (str == "4.0")
+                    selected = " selected ";
+                else
+                    selected = "";                    
+
+                document.write("<option  value='" + str + "'  " + selected + ">" + str + "</option>");
+            }
+            
+        </script>
+        </select>    
+    </td>
+    <td class="noborder">
+        <select id="credits">
+        <script>
+            var num = 0.0;
+            var str = "";
+            var selected;
+            while (num < 10.0) 
+            {
+                num += 0.5;
+                str = num + "";
+                if (str.indexOf(".") == -1)
+                    str = str + ".0";
+
+                if (str == "4.0")
+                    selected = " selected ";
+                else
+                    selected = "";                        
+                    
+                document.write("<option value='" + str + "' " + selected + ">" + str + "</option>");
+            }
+            
+        </script>
+        </select>
+    </td>
+    <td class="noborder"></td>
+    </tr>    
+    </table>    
+    <button type="button" onclick="addRecord()" name="addbutton">Add</button>
+    <button type="button" onclick="calculateGpa()" name="calculatebutton">Calculate</button>
+
+    <br><br><br>
+    <!-- table of records -->
+    <table id="recordTable">
+    
+    <tr>
+    <td class="classnamew"><b>Class name</b></td>
+    <td class="gradew"><b>Grade</b></td>
+    <td class="creditsw"><b>Credits</b></td>
+    <td class="creditsw"><b>Action</b></td>
+    </tr>    
+    
+    </table>
+    <br>
+    <div id="msg" class="errmsg"></div>
+    
+    
+</body>
+</html>

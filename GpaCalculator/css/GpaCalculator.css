@@ -1,0 +1,28 @@
+table,th,td
+{
+	border:1px solid black;
+}
+
+.noborder{
+	border: 0px;
+}
+
+.classnamew {
+	width:132px;
+}
+
+.gradew {
+	width:50px;
+}
+
+.creditsw {
+	width:50px;
+}
+
+.errmsg {
+	color:#ED1C24;
+}
+
+.gpamsg {
+	color:#0000FF;
+}
