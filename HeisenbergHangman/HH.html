@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+
+<!--
+Author:      Edwin Torres
+Description: This program is a simple hangman game, with a Breaking Bad theme.
+             It uses HTML5 and JavaScript
+-->
+
+<head>
+<title>Heisenberg Hangman</title>
+<style>
+table,th,td
+{
+border:0px;
+}
+button
+{
+font: 26px Arial;
+}
+</style>
+</head>
+
+<body>
+<h1>Heisenberg Hangman</h1>
+<table>
+
+<tr>
+<td>
+<h2>Choose:</h2>
+<canvas id="canvas0" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas1" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas2" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas3" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas4" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<br>
+<canvas id="canvas5" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas6" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas7" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas8" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas9" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<br>
+<canvas id="canvas10" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas11" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas12" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas13" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas14" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<br>
+<canvas id="canvas15" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas16" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas17" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas18" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas19" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<br>
+<canvas id="canvas20" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas21" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas22" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas23" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="canvas24" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<br>
+<canvas id="canvas25" width="35" height="35" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+<br>
+</td>
+<td>
+<canvas id="hangman" width="400" height="400" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+</td>
+</tr>
+
+<tr>
+<td colspan="2">
+<br>
+<canvas id="space0" width="100" height="100" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="space1" width="100" height="100" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="space2" width="100" height="100" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="space3" width="100" height="100" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="space4" width="100" height="100" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="space5" width="100" height="100" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="space6" width="100" height="100" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="space7" width="100" height="100" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="space8" width="100" height="100" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+<canvas id="space9" width="100" height="100" style="border:0px;">Your browser does not support the HTML5 canvas tag.</canvas>
+</td>
+</tr>
+</table>
+<br>
+<br>
+&nbsp;&nbsp;<button type="button" onclick="initializeVars();setUpLetters();setUpSpaces();setUpHangman();">Restart</button>
+<br>
+<br>
+<h4><i>Created by Edwin Torres</i></h4>
+<script>
+var asciiOffset = 65;
+var maxWrong = 10;
+var wordsArr;
+var letterDrawnArr;
+var word;
+var usedLetterArr;
+var guess;
+var numWrong;
+var haveWinner;
+var gameOver;
+var foundCharCount;
+
+//MAIN
+initializeVars();
+setUpLetters();
+setUpSpaces();
+setUpHangman();
+
+//FUNCTION DEFINITIONS
+
+function setUpLetters() {
+	//set up the letters
+	var asciiOffset = 65;
+	for (var i=0; i < 26; i++) {
+		var c=document.getElementById("canvas"+i);
+		var ctx=c.getContext("2d");
+		ctx.font="30px Arial";
+		var txt= String.fromCharCode(i + asciiOffset);
+		var x = 35/2 - ctx.measureText(txt).width/2; 
+		var y = 29;
+		ctx.fillStyle = 'black';
+		ctx.fillText(txt,x,y);
+		c.addEventListener('click', function(event) { //blanks out letter on click
+			if (gameOver) return;
+			var ctx = event.target.getContext("2d");
+			//alert(event.target.id); //e.g. canvas0
+			ctx.fillText(txt,x,y);
+			ctx.fillStyle = 'white';
+			ctx.fillRect(0,0,35,35);
+			var num = event.target.id.substr(6);
+			num = eval(num);
+			var letter = String.fromCharCode(num + asciiOffset);
+			guessLetter(letter);
+		}, false);
+	}
+}
+
+function setUpSpaces() {
+	//clear out previous spaces
+	for (var i=0; i < 10; i++) {
+		var c=document.getElementById("space"+i);
+		var ctx=c.getContext("2d");
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0,0,100,100);
+	}
+
+	//set up the spaces for this word
+	for (var i=0; i < word.length; i++) {
+		var c=document.getElementById("space"+i);
+		var ctx=c.getContext("2d");
+		var x = 0; 
+		var y = 90;
+		ctx.font="30px Arial";
+		ctx.fillStyle = 'black';
+		ctx.fillRect(5,y,90,10);
+	}
+}
+
+function setUpHangman() {
+	//set up the hangman
+	var c=document.getElementById("hangman");
+	var ctx=c.getContext("2d");
+
+	//clear previous canvas
+	ctx.fillStyle = 'white';
+	ctx.fillRect(0,0,400,400);
+
+	//create new hangman 
+	ctx.fillStyle = 'black';
+	ctx.fillRect(0,380,400,20); //base
+	ctx.fillRect(350,0,20,400); //post
+	ctx.fillRect(150,0,250,20); //top
+	ctx.fillRect(190,0,10,95); //rope
+}
+
+function initializeVars() {
+	wordsArr = getWords();
+	word = getRandomWord();
+	letterDrawnArr = new Array(word.length);
+	usedLetterArr = new Array(26);
+	guess = "";
+	numWrong = 0;
+	haveWinner = false;
+	foundCharCount = 0;
+	gameOver = false;
+	
+	for (var i=0; i < usedLetterArr.length; i++) {
+		usedLetterArr[i] = 0; //0 means unused
+	}
+	
+	for (var i=0; i < word.length; i++) {
+		letterDrawnArr[i] = 0;
+	}
+}
+
+//guess a letter
+function guessLetter(lett) {
+	if (gameOver) return;
+
+	//validate letter
+	if (lett == null || lett.length == 0) {
+		alert("guessLetter(): error - letter is null or blank");
+		return;
+	}
+
+	var n = lett.toUpperCase().charCodeAt(0);
+	if (n < 65 || n > 90) {
+		alert("guessLetter(): error - invalid letter: " + lett);
+		return;
+	}
+
+	//make sure it is not a duplicate guess
+	if (usedLetterArr[n-asciiOffset] == 1) {
+		//already guessed this letter
+		return;
+	} else {
+		usedLetterArr[n-asciiOffset] = 1;
+		var foundIndexesArr = hasChar(word,lett);
+		if (foundIndexesArr.length > 0) {
+			//found the letter in the word
+			foundCharCount = foundCharCount + foundIndexesArr.length;
+			for (var i=0; i < foundIndexesArr.length; i++) {
+				drawLetter(lett,foundIndexesArr[i],"black");
+				letterDrawnArr[foundIndexesArr[i]] = 1;
+			}
+		} else {
+			//did not find the letter in the word
+			drawHangman(numWrong);
+			numWrong++;
+			if (numWrong == 10) {
+				//loser
+				drawYouLose();
+				revealWord();
+				gameOver = true;
+			}
+		}
+		
+		if (foundCharCount == word.length) {
+			//winner
+			drawYouWin();
+			gameOver = true;
+			haveWinner = true;
+		}
+			
+	}
+}
+
+//get array of indexes where letter appears in the word
+function hasChar(wrd,lett) {
+	var indexArr = [];
+	var index = 0;
+	
+	wrd = wrd.toUpperCase();
+	lett = lett.toUpperCase();
+	
+	for (var i=0; i < wrd.length; i++) {
+		if (wrd.charAt(i) == lett) {
+			indexArr[index++] = i;
+		}
+	}
+	return indexArr;
+}
+
+//get a random word from the array of words
+function getRandomWord() {
+	var index = Math.floor(Math.random() * wordsArr.length);
+	return wordsArr[index];
+}
+
+function drawLetter(lett,space,color) {
+	var c=document.getElementById("space"+space);
+	var ctx=c.getContext("2d");
+	ctx.font="90px Arial";
+	var x = 100/2 - ctx.measureText(lett).width/2 ; 
+	var y = 75;
+	ctx.fillStyle = color;
+	ctx.fillText(lett,x,y);
+}
+
+function drawYouWin() {
+	var c=document.getElementById("hangman");
+	var ctx=c.getContext("2d");
+	ctx.font="32px Arial";
+	ctx.fillStyle = 'blue';
+	ctx.fillText("You win!!!",10,75);
+}
+
+function drawYouLose() {
+	var c=document.getElementById("hangman");
+	var ctx=c.getContext("2d");
+	ctx.font="32px Arial";
+	ctx.fillStyle = 'red';
+	ctx.fillText("You lose.",10,75);
+}
+
+function revealWord() {
+	for (var i=0; i < word.length; i++) {
+		if (letterDrawnArr[i] == 0)
+			drawLetter(word.charAt(i),i,"red");
+	}
+}
+
+function drawHangman(num) {
+	switch(num) {
+		case 0:
+			//draw head
+			var c=document.getElementById("hangman");
+			var ctx=c.getContext("2d");
+			ctx.beginPath();
+			ctx.arc(194,125,30 /*radius*/,0,2*Math.PI);
+			ctx.lineWidth = 1;
+			ctx.stroke();
+			break;
+		case 1:
+			//draw body
+			var c=document.getElementById("hangman");
+			var ctx=c.getContext("2d");
+			ctx.fillStyle = 'black';
+			ctx.fillRect(187,153,15,125);
+			break;
+		case 2:
+			//draw left arm
+			var c=document.getElementById("hangman");
+			var ctx=c.getContext("2d");
+			ctx.fillStyle = 'black';
+			ctx.beginPath();
+			ctx.moveTo(195,175);
+			ctx.lineTo(150,220);
+			ctx.lineWidth = 17;
+			ctx.stroke();
+			break;
+		case 3:
+			//draw right arm
+			var c=document.getElementById("hangman");
+			var ctx=c.getContext("2d");
+			ctx.fillStyle = 'black';
+			ctx.beginPath();
+			ctx.moveTo(195,175);
+			ctx.lineTo(245,220);
+			ctx.lineWidth = 17;
+			ctx.stroke();			
+			break;
+		case 4:
+			//draw left leg
+			var c=document.getElementById("hangman");
+			var ctx=c.getContext("2d");
+			ctx.fillStyle = 'black';
+			ctx.beginPath();
+			ctx.moveTo(195,270);
+			ctx.lineTo(135,305);
+			ctx.lineWidth = 17;
+			ctx.stroke();			
+			break;
+		case 5:
+			//draw right leg
+			var c=document.getElementById("hangman");
+			var ctx=c.getContext("2d");
+			ctx.fillStyle = 'black';
+			ctx.beginPath();
+			ctx.moveTo(195,270);
+			ctx.lineTo(245,310);
+			ctx.lineWidth = 17;
+			ctx.stroke();
+			break;
+		case 6:
+			//draw nose
+			var c=document.getElementById("hangman");
+			var ctx=c.getContext("2d");
+			ctx.beginPath();
+			ctx.arc(195,128,5 /*radius*/,0,2*Math.PI);
+			ctx.lineWidth = 1;
+			ctx.stroke();
+			ctx.fill();	
+			break;
+		case 7:
+			//draw mouth
+			var c=document.getElementById("hangman");
+			var ctx=c.getContext("2d");
+			ctx.beginPath();
+			ctx.arc(195,155,15 /*radius*/,Math.PI,0);
+			ctx.lineWidth = 1;
+			ctx.stroke();
+			break;
+		case 8:
+			//draw sunglasses
+			var x = 180;
+			var y = 110;
+			
+			//left glass
+			var c=document.getElementById("hangman");
+			var ctx=c.getContext("2d");
+			ctx.lineWidth = 1;
+			ctx.beginPath();
+			ctx.arc(x,y,15 /*radius*/,0,Math.PI);
+			ctx.stroke();
+			ctx.fill();	
+			
+			//right glass
+			ctx.beginPath();
+			ctx.arc(x+30,y,15 /*radius*/,0,Math.PI);
+			ctx.stroke();
+			ctx.fill();			
+			break;
+		case 9:
+			//draw hat
+			var c=document.getElementById("hangman");
+			var ctx=c.getContext("2d");
+			ctx.fillStyle = 'black';
+			ctx.fillRect(170,65,50,35); //hat
+			ctx.fillRect(150,95,90,10); //brim
+			break;			
+		default:
+			;
+	}
+}
+
+//get the array of words
+function getWords() {
+    return [
+	"BAD",
+	"BLUE",
+	"BREAKING",
+	"CANCER",
+	"CARTEL",
+	"CHEMISTRY",
+	"CRYSTAL",
+	"DRUGS",
+	"FAMILY",
+	"FRING",
+	"GALE",
+	"GOMEZ",
+	"GUS",
+	"GUSTAVO",
+	"HANK",
+	"HECTOR",
+	"JESSE",
+	"MARIE",
+	"MIKE",
+	"MONEY",
+	"PINKMAN",
+	"POLLOS",
+	"RV",
+	"SALAMANCA",
+	"SAUL",
+	"SKYLER",
+	"TODD",
+	"TORTUGA",
+	"TUCO",
+	"HEISENBERG"
+	];
+	
+}
+
+</script>
+
+</body>
+</html>
