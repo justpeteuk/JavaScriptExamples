@@ -323,8 +323,8 @@ function drawHangman(num) {
 			//draw left arm
 			var c=document.getElementById("hangman");
 			var ctx=c.getContext("2d");
-			ctx.fillStyle = 'black';
 			ctx.beginPath();
+			ctx.strokeStyle = 'black';
 			ctx.moveTo(195,175);
 			ctx.lineTo(150,220);
 			ctx.lineWidth = 17;
@@ -334,7 +334,7 @@ function drawHangman(num) {
 			//draw right arm
 			var c=document.getElementById("hangman");
 			var ctx=c.getContext("2d");
-			ctx.fillStyle = 'black';
+			ctx.strokeStyle = 'black';
 			ctx.beginPath();
 			ctx.moveTo(195,175);
 			ctx.lineTo(245,220);
@@ -345,7 +345,7 @@ function drawHangman(num) {
 			//draw left leg
 			var c=document.getElementById("hangman");
 			var ctx=c.getContext("2d");
-			ctx.fillStyle = 'black';
+			ctx.strokeStyle = 'black';
 			ctx.beginPath();
 			ctx.moveTo(195,270);
 			ctx.lineTo(135,305);
@@ -356,7 +356,7 @@ function drawHangman(num) {
 			//draw right leg
 			var c=document.getElementById("hangman");
 			var ctx=c.getContext("2d");
-			ctx.fillStyle = 'black';
+			ctx.strokeStyle = 'black';
 			ctx.beginPath();
 			ctx.moveTo(195,270);
 			ctx.lineTo(245,310);
