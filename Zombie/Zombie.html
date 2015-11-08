@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Author: Twitter @realEdwinTorres  -->
 <html>
     <head>
         <title>Zombie</title>
@@ -35,24 +36,31 @@
 	</style>
 	
 	<script>
-	    
+	var zombieIcon = '&#9760;';
+	var humanIcon = '&#9786;';
+	var rows = 15;
+	var cols = 15;	
     	var humans = 10;
 	var zombies = 1;
-	var rows = 15;
-	var cols = 15;
+	var speedms = 500;
 	var board = null;
 	var currSpot = 0;
 	var randomSpots = [];
 	var occupied = [];
-	var zombieIcon = '&#9760;';
-	var humanIcon = '&#9786;';
 	var simvar = null;
 	var totalHumans = humans;
 	var totalZombies = zombies;
-	var speedms = 500;
 	var totalDays = 0;
 
 	function initBoard() {
+	    board = null;
+	    currSpot = 0;
+	    randomSpots = [];
+	    occupied = [];
+	    simvar = null;
+	    totalHumans = humans;
+	    totalZombies = zombies;
+	    totalDays = 0;
 	    board = new Array(rows);
 	    for (var i=0; i < rows; i++) {
 		temparr = [];
@@ -62,9 +70,6 @@
 		board[i] = temparr;
 	    }
 	    redrawBoard();
-	    totalHumans = humans;
-	    totalZombies = zombies;
-	    totalDays = 0;
 	    $('#tothumans').text('Humans: ' + totalHumans);
 	    $('#totzombies').text('Zombies: ' + totalZombies);
 	    $('#totdays').text('Days: ' + totalDays);
@@ -131,8 +136,6 @@
 	}
 	
 	function move(str) {
-	    zombiesfound = 0;
-	    humansfound = 0;
 	    temparr = str.split(".");
 	    x = parseInt(temparr[0]);
 	    y = parseInt(temparr[1]);
@@ -147,49 +150,87 @@
 		    
 		    if (x1 == x || y1 == y) {
 			options[oindex++] = x1.toString() + '.' + y1.toString();
-			if (board[x1][y1] == 'H')
-			    humansfound++;
-			else if (board[x1][y1] == 'Z')
-			    zombiesfound++;
 		    }
 		    
 		}
 	    }
 	    
+	    //randomize options
+	    options = shuffle(options);
 	    if (board[x][y] == 'H') {
 		if ($('#smarthuman').is(":checked")) {
 		    //smart human
+		    thex = -1;
+		    they = -1;
+		    for (var i=0; i < options.length; i++) {
+			temparr = options[i].split(".");
+			newx = parseInt(temparr[0]);
+			newy = parseInt(temparr[1]);
+			if (board[newx][newy] == ' ') {
+			    if (thex == -1) {
+				thex = newx;
+				they = newy;
+			    } else if (!near('Z',newx,newy)) {
+				thex = newx;
+				they = newy;
+				break;
+			    }
+			}
+		    }
+		    if (thex != -1) {
+			humanSwap(x,y,thex,they);
+			return thex.toString() + '.' + they.toString();
+		    }
 		} else {
-		    //dumb human
+		    //dumb human: pick a random spot that is free
+		    for (var i=0; i < options.length; i++) {
+			temparr = options[i].split(".");
+			newx = parseInt(temparr[0]);
+			newy = parseInt(temparr[1]);
+			if (board[newx][newy] == ' ') {
+			    humanSwap(x,y,newx,newy);
+			    return newx.toString() + '.' + newy.toString();
+			}
+		    }
 		}
 	    } else if (board[x][y] == 'Z') {
 		if ($('#smartzombie').is(":checked")) {
 		    //smart zombie
-		    
+		    thex = -1;
+		    they = -1;
+		    for (var i=0; i < options.length; i++) {
+			temparr = options[i].split(".");
+			newx = parseInt(temparr[0]);
+			newy = parseInt(temparr[1]);
+			if (board[newx][newy] == ' ') {
+			    if (thex == -1) {
+				thex = newx;
+				they = newy;
+			    } else if (near('H',newx,newy)) {
+				thex = newx;
+				they = newy;
+				break;
+			    }
+			}
+		    }
+		    if (thex != -1) {
+			zombieSwap(x,y,thex,they);
+			return thex.toString() + '.' + they.toString();
+		    }
 		} else {
-		    //dumb zombie
+		    //dumb zombie: pick a random spot that is free
+		    for (var i=0; i < options.length; i++) {
+			temparr = options[i].split(".");
+			newx = parseInt(temparr[0]);
+			newy = parseInt(temparr[1]);
+			if (board[newx][newy] == ' ') {
+			    zombieSwap(x,y,newx,newy);
+			    return newx.toString() + '.' + newy.toString();
+			}
+		    }
 		}
 	    }
 	    
-
-	    
-	    
-
-
-	    
-	    options = shuffle(options);
-	    for (var i=0; i < options.length; i++) {
-		temparr = options[i].split(".");
-		newx = parseInt(temparr[0]);
-		newy = parseInt(temparr[1]);
-		if (board[newx][newy] == ' ') {
-		    if (board[x][y] == 'H')
-			humanSwap(x,y,newx,newy);
-		    else if (board[x][y] == 'Z')
-			zombieSwap(x,y,newx,newy);
-		    return newx.toString() + '.' + newy.toString();
-		}
-	    }
 	    return '';
 	}
 
@@ -197,8 +238,7 @@
 	    tmp = board[x1][y1];
 	    board[x1][y1] = board[x2][y2];
 	    board[x2][y2] = tmp;
-	    if (nearZombie(x2,y2)) {
-		$('#msg').text("near zombie at: " + x2 + "," + y2);
+	    if (near('Z',x2,y2)) {
 		board[x2][y2] = 'Z';
 		totalHumans--;
 		totalZombies++;
@@ -254,7 +294,7 @@
 	    }
 	}
 	
-	function nearZombie(x,y) {
+	function near(str,x,y) {
 	    for (var x1=x-1; x1 <= x+1; x1++) {
 		if (x1 < 0 || x1 >= rows) 
 		    continue;
@@ -262,11 +302,10 @@
 		    if (y1 < 0 || y1 >= cols)
 			continue;
 		    if (x1 == x || y1 == y) {
-			if (board[x1][y1] == 'Z') {
+			if (board[x1][y1] == str) {
 			    return true;
 			}
 		    }
-		    
 		}
 	    }
 	    return false;
@@ -302,13 +341,14 @@
 	    placeHumans();
 	}
 	
+	function msg(str,color) {
+	    $('#msg').text(str).css('color',color);
+	}
 
 	</script>
     </head>
 
     <body>
-
-
 	<div class="container">
 	    <br>
 	    <div id="mytable"></div>
@@ -323,8 +363,8 @@
 		<tr>
 		    <td class="control">Speed (ms):</td>
 		    <td class="control"><input type="number" id="speedms" min="100" max="1000">&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign" style="white-space:nowrap;vertical-align: middle;" data-toggle="tooltip" title="Enter the speed in milliseconds from 100 to 1000." ></span></td>
-		    <td class="control"><input type="checkbox" name="smarthuman" id="smarthuman" value="smart">&nbsp;Smart Human&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign" style="white-space:nowrap;vertical-align: middle;" data-toggle="tooltip" title="Smart humans will try to avoid moving next to a zombie." ></span></td>
-		    <td class="control"><input type="checkbox" name="smartzombie" id="smartzombie" value="smart">&nbsp;Smart Zombie&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign" style="white-space:nowrap;vertical-align: middle;" data-toggle="tooltip" title="Smart zombies will try to move next to a human." ></span></td>
+		    <td class="control"><input type="checkbox" name="smarthuman" id="smarthuman" value="smart">&nbsp;Smart Human&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign" style="white-space:nowrap;vertical-align: middle;" data-toggle="tooltip" title="Smart humans will try to avoid moving to a spot that is next to a zombie." ></span></td>
+		    <td class="control"><input type="checkbox" name="smartzombie" id="smartzombie" value="smart">&nbsp;Smart Zombie&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign" style="white-space:nowrap;vertical-align: middle;" data-toggle="tooltip" title="Smart zombies will try to move to a spot that is close to a human." ></span></td>
 		</tr>
     
 		<tr>
@@ -353,7 +393,6 @@
     }
     $('#mytable').append(  '</table>' );
 
-    
     initBoard();
     getRandomSpots();
     placeZombies();
