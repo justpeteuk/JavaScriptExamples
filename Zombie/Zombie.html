@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Zombie</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    
+	<style>
+	table, th {
+	    vertical-align:middle;
+	    border: 1px solid black;
+	}
+	td {
+	    width:35px;
+	    height:30px;
+	    border: 1px solid black;
+	    vertical-align:middle;
+	    text-align:center;
+	    font-size:25px;
+	    background-color:Beige;
+	}
+	td.control {
+	    border: 0px;
+	    padding-right:10px;
+	    padding-left:10px;
+	    padding-bottom:10px;
+	    padding-top:10px;
+	    font-size:15px;
+	    white-space: nowrap;
+	    background-color:white;
+	}
+	</style>
+	
+	<script>
+	    
+    	var humans = 10;
+	var zombies = 1;
+	var rows = 15;
+	var cols = 15;
+	var board = null;
+	var currSpot = 0;
+	var randomSpots = [];
+	var occupied = [];
+	var zombieIcon = '&#9760;';
+	var humanIcon = '&#9786;';
+	var simvar = null;
+	var totalHumans = humans;
+	var totalZombies = zombies;
+	var speedms = 500;
+	var totalDays = 0;
+
+	function initBoard() {
+	    board = new Array(rows);
+	    for (var i=0; i < rows; i++) {
+		temparr = [];
+		for (var j=0; j < cols; j++) {
+		    temparr[j] = ' ';
+		}
+		board[i] = temparr;
+	    }
+	    redrawBoard();
+	    totalHumans = humans;
+	    totalZombies = zombies;
+	    $('#tothumans').text('Humans: ' + totalHumans);
+	    $('#totzombies').text('Zombies: ' + totalZombies);
+	    $('#totdays').text('Days: ' + totalDays);
+	    $('#msg').text('');
+	    $("#speedms").val(speedms);
+	    totalDays = 0;
+	}
+	
+	function getRandomSpots() {
+	    var index = 0;
+	    for (var i=0; i < rows; i++) {
+		for (var j=0; j < cols; j++) {
+		    randomSpots[index++] = i.toString() + '.' + j.toString();
+		}
+	    }
+	    randomSpots = shuffle(randomSpots);
+	}
+	
+	function placeZombies() {
+	    for (var i=0; i < zombies; i++) {
+		temp = randomSpots[currSpot];
+		temparr = temp.split(".");
+		x = parseInt(temparr[0]);
+		y = parseInt(temparr[1]);
+		board[x][y] = 'Z';
+		occupied[currSpot] = x.toString() + '.' + y.toString();
+		currSpot++;
+		$('#cell'+x.toString()+ '_' + y.toString()).html(zombieIcon).css('color', 'green');
+	    }
+	}
+	
+	function placeHumans() {
+	    for (var i=0; i < humans; i++) {
+		temp = randomSpots[currSpot];
+		temparr = temp.split(".");
+		x = parseInt(temparr[0]);
+		y = parseInt(temparr[1]);
+		board[x][y] = 'H';
+		occupied[currSpot] = x.toString() + '.' + y.toString();
+		currSpot++;
+		$('#cell'+x.toString()+ '_' +y.toString()).html(humanIcon).css('color', 'black');
+	    }
+	}
+	
+	function shuffle(o){
+	    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+	    return o;
+	}
+
+	function makeMoves() {
+	    //shuffle occupied
+	    occupied = shuffle(occupied);
+	    for (var i=0; i < occupied.length; i++) {
+		ret = move(occupied[i]);
+		if (ret.length > 0) {
+		    occupied[i] = ret;
+		}
+	    }
+	    redrawBoard();
+	    totalDays++;
+	    $('#totdays').text('Days: ' + totalDays);
+	}
+	
+	function move(str) {
+	    temparr = str.split(".");
+	    x = parseInt(temparr[0]);
+	    y = parseInt(temparr[1]);
+	    options = [];
+	    oindex = 0;
+	    for (var x1=x-1; x1 <= x+1; x1++) {
+		if (x1 < 0 || x1 >= rows) 
+		    continue;
+		for (var y1=y-1; y1 <= y+1; y1++) {
+		    if (y1 < 0 || y1 >= cols)
+			continue;
+		    
+		    if (x1 == x || y1 == y) {
+			options[oindex++] = x1.toString() + '.' + y1.toString();
+		    }
+		    
+		}
+	    }
+	    
+	    options = shuffle(options);
+	    for (var i=0; i < options.length; i++) {
+		temparr = options[i].split(".");
+		newx = parseInt(temparr[0]);
+		newy = parseInt(temparr[1]);
+		if (board[newx][newy] == ' ') {
+		    if (board[x][y] == 'H')
+			humanSwap(x,y,newx,newy);
+		    else if (board[x][y] == 'Z')
+			zombieSwap(x,y,newx,newy);
+		    return newx.toString() + '.' + newy.toString();
+		}
+	    }
+	    return '';
+	}
+
+	function humanSwap(x1,y1,x2,y2) {    
+	    tmp = board[x1][y1];
+	    board[x1][y1] = board[x2][y2];
+	    board[x2][y2] = tmp;
+	    if (nearZombie(x2,y2)) {
+		board[x2][y2] = 'Z';
+		totalHumans--;
+		totalZombies++;
+		$('#tothumans').text('Humans: ' + totalHumans);
+		$('#totzombies').text('Zombies: ' + totalZombies);
+		if (totalHumans <= 0)
+		    stopSim();
+	    }
+	}
+	
+	function zombieSwap(xo,yo,xn,yn) {    
+	    tmp = board[xo][yo];
+	    board[xo][yo] = board[xn][yn];
+	    board[xn][yn] = tmp;
+	    for (var x=xn-1; x <= xn+1; x++) {
+		if (x < 0 || x >= rows) 
+		    continue;
+		for (var y=yn-1; y <= yn+1; y++) {
+		    if (y < 0 || y >= cols)
+			continue;
+		    if ((x == xn || y == yn) && (!(x == xn && y == yn))) {
+			if (board[x][y] == 'H') {
+			    board[x][y] = 'Z';
+			    totalHumans--;
+			    totalZombies++;
+			    $('#tothumans').text('Humans: ' + totalHumans);
+			    $('#totzombies').text('Zombies: ' + totalZombies);
+			    if (totalHumans <= 0)
+				stopSim();
+			}
+		    }
+		}
+	    }
+	}
+	
+	function redrawBoard() {
+	    for (var i=0; i < rows; i++) {
+		for (var j=0; j < cols; j++) {
+		    $('#cell'+i.toString() + '_' +j.toString()).html(board[i][j]);
+		    
+		    if (board[i][j] == 'H') {
+			$('#cell'+i.toString() + '_' +j.toString()).html(humanIcon).css('color', 'black');
+		    } else if (board[i][j] == 'Z') {
+			$('#cell'+i.toString() + '_' +j.toString()).html(zombieIcon).css('color', 'green');
+		    } else {
+			$('#cell'+i.toString() + '_' +j.toString()).html('&nbsp;').css('color', 'black');
+		    }
+		}
+	    }
+	}
+	
+	function nearZombie(x,y) {
+	    for (var x1=x-1; x1 <= x+1; x1++) {
+		if (x1 < 0 || x1 >= rows) 
+		    continue;
+		for (var y1=y-1; y1 <= y+1; y1++) {
+		    if (y1 < 0 || y1 >= cols)
+			continue;
+		    if (x1 == x || y1 == y) {
+			if (board[x][y] == 'Z')
+			    return true;
+		    }
+		    
+		}
+	    }
+	    return false;
+	}
+	
+	function startSim() {
+	    speedms = parseInt($('#speedms').val());
+	    if (totalHumans <= 0)
+		clearSim();
+	    $('#msg').text("We're doomed...").css('color','blue');
+	    simvar = setInterval(makeMoves, speedms);
+	}
+	
+	function stopSim() {
+	    $('#msg').text("Game Over").css('color','red');
+	    if (simvar !== null) 
+		clearInterval(simvar);
+	}
+	
+	function clearSim() {
+	    if (simvar !== null) 
+		clearInterval(simvar);
+	    initBoard();
+	    getRandomSpots();
+	    placeZombies();
+	    placeHumans();
+	}
+	
+
+	</script>
+    </head>
+
+    <body>
+
+
+	<div class="container">
+	    <br>
+	    <div id="mytable"></div>
+	    <table style="border:0px">
+    
+		<tr>
+		    <td class="control">Speed (ms):</td>
+		    <td class="control"><input type="number" id="speedms" min="100" max="1000">&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign" style="white-space:nowrap;vertical-align: middle;" data-toggle="tooltip" title="Enter the speed in milliseconds from 100 to 1000." ></span></td>
+		    <td class="control"><div id="tothumans"></div></td>
+		    <td class="control"><div id="totzombies"></div></td>
+		    <td class="control"><div id="totdays"></div></td>
+		</tr>
+    
+		<tr>
+		    <td class="control"><button onclick="startSim();" >Start</button></td>
+		    <td class="control"><button onclick="stopSim();" >Stop</button></td>
+		    <td class="control"><button onclick="clearSim();" >Clear</button></td>
+		    <td class="control"><div id="msg"></div></td>
+		</tr>
+		
+	    </table>
+	
+	</div>
+    </body>
+
+    
+    <script>
+	
+    $('#mytable').append('<table>');
+    for(i=0;i<rows;i++){
+	tmpstr = '<tr>';
+	for (j=0; j<cols;j++) {
+	    tmpstr += "<td id='cell" + i.toString()  + '_' + j.toString() +"'>&nbsp;</td>";
+	}
+	tmpstr += '</tr>';
+	$('#mytable').append(tmpstr);
+    }
+    $('#mytable').append(  '</table>' );
+
+    
+    initBoard();
+    getRandomSpots();
+    placeZombies();
+    placeHumans();
+
+    
+    </script>
+
+
+</html>
