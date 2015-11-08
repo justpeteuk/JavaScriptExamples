@@ -64,12 +64,15 @@
 	    redrawBoard();
 	    totalHumans = humans;
 	    totalZombies = zombies;
+	    totalDays = 0;
 	    $('#tothumans').text('Humans: ' + totalHumans);
 	    $('#totzombies').text('Zombies: ' + totalZombies);
 	    $('#totdays').text('Days: ' + totalDays);
 	    $('#msg').text('');
 	    $("#speedms").val(speedms);
-	    totalDays = 0;
+	    $('#startsim').prop('disabled', false);
+	    $('#pausesim').prop('disabled', true);
+	    $('#clearsim').prop('disabled', true);
 	}
 	
 	function getRandomSpots() {
@@ -128,6 +131,8 @@
 	}
 	
 	function move(str) {
+	    zombiesfound = 0;
+	    humansfound = 0;
 	    temparr = str.split(".");
 	    x = parseInt(temparr[0]);
 	    y = parseInt(temparr[1]);
@@ -142,10 +147,35 @@
 		    
 		    if (x1 == x || y1 == y) {
 			options[oindex++] = x1.toString() + '.' + y1.toString();
+			if (board[x1][y1] == 'H')
+			    humansfound++;
+			else if (board[x1][y1] == 'Z')
+			    zombiesfound++;
 		    }
 		    
 		}
 	    }
+	    
+	    if (board[x][y] == 'H') {
+		if ($('#smarthuman').is(":checked")) {
+		    //smart human
+		} else {
+		    //dumb human
+		}
+	    } else if (board[x][y] == 'Z') {
+		if ($('#smartzombie').is(":checked")) {
+		    //smart zombie
+		    
+		} else {
+		    //dumb zombie
+		}
+	    }
+	    
+
+	    
+	    
+
+
 	    
 	    options = shuffle(options);
 	    for (var i=0; i < options.length; i++) {
@@ -168,13 +198,16 @@
 	    board[x1][y1] = board[x2][y2];
 	    board[x2][y2] = tmp;
 	    if (nearZombie(x2,y2)) {
+		$('#msg').text("near zombie at: " + x2 + "," + y2);
 		board[x2][y2] = 'Z';
 		totalHumans--;
 		totalZombies++;
 		$('#tothumans').text('Humans: ' + totalHumans);
 		$('#totzombies').text('Zombies: ' + totalZombies);
-		if (totalHumans <= 0)
-		    stopSim();
+		if (totalHumans <= 0) {
+		    pauseSim();
+		    $('#msg').text("Game Over").css('color','red');
+		}
 	    }
 	}
 	
@@ -188,15 +221,17 @@
 		for (var y=yn-1; y <= yn+1; y++) {
 		    if (y < 0 || y >= cols)
 			continue;
-		    if ((x == xn || y == yn) && (!(x == xn && y == yn))) {
+		    if (x == xn || y == yn) {
 			if (board[x][y] == 'H') {
 			    board[x][y] = 'Z';
 			    totalHumans--;
 			    totalZombies++;
 			    $('#tothumans').text('Humans: ' + totalHumans);
 			    $('#totzombies').text('Zombies: ' + totalZombies);
-			    if (totalHumans <= 0)
-				stopSim();
+			    if (totalHumans <= 0) {
+				pauseSim();
+				$('#msg').text("Game Over").css('color','red');
+			    }
 			}
 		    }
 		}
@@ -227,8 +262,9 @@
 		    if (y1 < 0 || y1 >= cols)
 			continue;
 		    if (x1 == x || y1 == y) {
-			if (board[x][y] == 'Z')
+			if (board[x1][y1] == 'Z') {
 			    return true;
+			}
 		    }
 		    
 		}
@@ -238,16 +274,23 @@
 	
 	function startSim() {
 	    speedms = parseInt($('#speedms').val());
-	    if (totalHumans <= 0)
+	    if (totalHumans <= 0) {
 		clearSim();
+	    }
 	    $('#msg').text("We're doomed...").css('color','blue');
 	    simvar = setInterval(makeMoves, speedms);
+    	    $('#startsim').prop('disabled', true);
+	    $('#pausesim').prop('disabled', false);
+	    $('#clearsim').prop('disabled', false);
 	}
 	
-	function stopSim() {
-	    $('#msg').text("Game Over").css('color','red');
+	function pauseSim() {
 	    if (simvar !== null) 
 		clearInterval(simvar);
+	    $('#startsim').prop('disabled', false);
+	    $('#pausesim').prop('disabled', true);
+	    $('#clearsim').prop('disabled', false);
+	    $('#msg').text("- paused -").css('color','blue');
 	}
 	
 	function clearSim() {
@@ -272,17 +315,22 @@
 	    <table style="border:0px">
     
 		<tr>
-		    <td class="control">Speed (ms):</td>
-		    <td class="control"><input type="number" id="speedms" min="100" max="1000">&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign" style="white-space:nowrap;vertical-align: middle;" data-toggle="tooltip" title="Enter the speed in milliseconds from 100 to 1000." ></span></td>
 		    <td class="control"><div id="tothumans"></div></td>
 		    <td class="control"><div id="totzombies"></div></td>
-		    <td class="control"><div id="totdays"></div></td>
+		    <td class="control" colspan="2"><div id="totdays"></div></td>
 		</tr>
     
 		<tr>
-		    <td class="control"><button onclick="startSim();" >Start</button></td>
-		    <td class="control"><button onclick="stopSim();" >Stop</button></td>
-		    <td class="control"><button onclick="clearSim();" >Clear</button></td>
+		    <td class="control">Speed (ms):</td>
+		    <td class="control"><input type="number" id="speedms" min="100" max="1000">&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign" style="white-space:nowrap;vertical-align: middle;" data-toggle="tooltip" title="Enter the speed in milliseconds from 100 to 1000." ></span></td>
+		    <td class="control"><input type="checkbox" name="smarthuman" id="smarthuman" value="smart">&nbsp;Smart Human&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign" style="white-space:nowrap;vertical-align: middle;" data-toggle="tooltip" title="Smart humans will try to avoid moving next to a zombie." ></span></td>
+		    <td class="control"><input type="checkbox" name="smartzombie" id="smartzombie" value="smart">&nbsp;Smart Zombie&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign" style="white-space:nowrap;vertical-align: middle;" data-toggle="tooltip" title="Smart zombies will try to move next to a human." ></span></td>
+		</tr>
+    
+		<tr>
+		    <td class="control"><button id="startsim" onclick="startSim();" >Start</button></td>
+		    <td class="control"><button id="pausesim"  onclick="pauseSim();" >Pause</button></td>
+		    <td class="control"><button id="clearsim"  onclick="clearSim();" >Clear</button></td>
 		    <td class="control"><div id="msg"></div></td>
 		</tr>
 		
